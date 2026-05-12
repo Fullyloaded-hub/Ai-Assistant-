@@ -67,7 +67,51 @@ User message: ${message}`
     res.status(500).json({ error: error.message });
   }
 });
+app.post("/live-token", async (req, res) => {
+  try {
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1alpha/auth_tokens",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": GEMINI_API_KEY
+        },
+        body: JSON.stringify({
+          config: {
+            uses: 1,
+            expireTime: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+            newSessionExpireTime: new Date(Date.now() + 60 * 1000).toISOString(),
+            liveConnectConstraints: {
+              model: "gemini-3.1-flash-live-preview",
+              config: {
+                responseModalities: ["AUDIO"],
+                temperature: 0.7,
+                sessionResumption: {}
+              }
+            },
+            httpOptions: {
+              apiVersion: "v1alpha"
+            }
+          }
+        })
+      }
+    );
 
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json(data);
+    }
+
+    res.json({
+      token: data.name
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
