@@ -112,6 +112,9 @@ app.post("/live-token", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.get("/live-token-test", (req, res) => {
+  res.json({ message: "live token route exists" });
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
